@@ -11,7 +11,7 @@ class MainWindow(qtw.QMainWindow):
         super().__init__()
         self.setWindowTitle('Wallpaper')
         
-        #self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint)
         self.setAttribute(qtc.Qt.WA_TranslucentBackground)
         self.setAttribute(qtc.Qt.WA_TransparentForMouseEvents)
         self.setGeometry(geometry)

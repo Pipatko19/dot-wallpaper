@@ -3,26 +3,6 @@ from PySide6 import QtGui as qtg
 from PySide6 import QtCore as qtc
 from math import sin, cos, radians, pi
 
-# class Position:
-#     def __init__(self, x: int, y: int):
-#         """Define the properties of the object in coordinates."""
-        
-#         self.position = qtc.QPointF(x, y)
-
-    
-#     def update(self, dx, dy):
-#         self.position += qtc.QPointF(dx, dy)
-    
-#     def reflect(self, axis=None):
-#         """Reflects the angle. If axis=None, reflect both axis, if axis=0 reflect x, else reflect y"""
-#         match axis:
-#             case 0:
-#                 self.angle = -self.angle
-#             case 1:
-#                 self.angle = pi - self.angle
-#             case _:
-#                 self.angle = self.angle + pi
-
 class Ball:
     def __init__(
         self, 
@@ -69,9 +49,11 @@ class Atractor(Ball):
     def __init__(self, radius = 5, color: qtg.QColor = qtg.QColor(255, 255, 255, 180)):
         super().__init__(x=0, y=0, radius=radius, color=color)
     
-    def update(self, position: qtc.QPointF):
+    def update(self, position: qtc.QPointF = None):
         'Should be stationary or be on top of the cursor'
         ...
+        if position is None:
+            return
         self.position = position
     
     

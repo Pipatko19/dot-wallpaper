@@ -1,6 +1,5 @@
 import sys
 import random
-import pyautogui
 
 from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
