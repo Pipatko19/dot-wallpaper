@@ -1,14 +1,14 @@
 import sys
 import random
-from collections import namedtuple
+import pyautogui
+
 from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
 from PySide6 import QtCore as qtc
+from ball import Ball, Atractor
 
-from ball import Ball
-
-BALL_RADIOUS = 15
-OFFSET = BALL_RADIOUS + 10
+BALL_RADIUS = 15
+OFFSET = BALL_RADIUS + 10
 BALL_COUNT = 200
 BALL_SPEED = 5
 
@@ -19,6 +19,8 @@ class Wallpaper(qtw.QWidget):
         super().__init__()
         self.setGeometry(geometry)
         #Main UI code goes here
+        
+        self.objects = []
 
         self.balls = [
             Ball(
@@ -27,37 +29,49 @@ class Wallpaper(qtw.QWidget):
                 speed=random.choice([-BALL_SPEED, BALL_SPEED]),
                 angle=random.randint(0, 359),
                 color=qtg.QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), 180),
-                radious = BALL_RADIOUS
+                radius = BALL_RADIUS
             )
             for _ in range(BALL_COUNT)
             ]
         
+        self.cursor_ball = Atractor()
+        self.objects.extend(self.balls)
+        self.objects.append(self.cursor_ball)
+        
         self.timer = qtc.QTimer()
-        self.timer.timeout.connect(self.update_positions)
+        self.timer.timeout.connect(self.update_all)
         self.timer.start(30)
         
         self.key_pressed.connect(self.spin)
         #End main UI code
         self.show()
     
-    def update_positions(self):
+    def _update_ball_positions(self):
         for ball in self.balls:
             ball.update()
             x, y = ball.position.x(), ball.position.y()
-            if x - ball.radious < 0 or x + ball.radious > self.width():
+            if x - ball.radius < 0 or x + ball.radius > self.width():
                 ball.reflect(1)
-            if y - ball.radious < 0 or y + ball.radious > self.height():
+            if y - ball.radius < 0 or y + ball.radius > self.height():
                 ball.reflect(0)
+    
+    def _update_cursor(self):
+        new_pos = self.mapFromGlobal(qtg.QCursor.pos())
+        self.cursor_ball.update(new_pos)
+    
+    def update_all(self):
+        self._update_ball_positions()
+        self._update_cursor()
         self.update()
+    
     
     def paintEvent(self, event):
         painter = qtg.QPainter(self)
         painter.setRenderHint(qtg.QPainter.Antialiasing)
         
-        for ball in self.balls:
+        for obj in self.objects:
+            obj.draw(painter)
         
-            painter.setBrush(qtg.QBrush(ball.color))
-            painter.drawEllipse(ball.position, ball.radious, ball.radious)
         return super().paintEvent(event)
 
     def keyPressEvent(self, event):
@@ -65,7 +79,6 @@ class Wallpaper(qtw.QWidget):
         print(key)
         if key == 'k' or key == 'l':
             self.key_pressed.emit(key)
-            print('hello')
         return super().keyPressEvent(event)
 
     def spin(self, key):

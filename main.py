@@ -10,8 +10,8 @@ class MainWindow(qtw.QMainWindow):
         """MainWindow constructor"""
         super().__init__()
         self.setWindowTitle('Wallpaper')
-        #Main UI code goes here
-        self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint)
+        
+        #self.setWindowFlags(qtc.Qt.FramelessWindowHint | qtc.Qt.WindowStaysOnTopHint)
         self.setAttribute(qtc.Qt.WA_TranslucentBackground)
         self.setAttribute(qtc.Qt.WA_TransparentForMouseEvents)
         self.setGeometry(geometry)
@@ -19,7 +19,7 @@ class MainWindow(qtw.QMainWindow):
         self.animated_wallpaper = Wallpaper(geometry)
         self.setCentralWidget(self.animated_wallpaper)
 
-        #End main UI code
+        
         self.centralWidget().setFocus()
         
         self.show()

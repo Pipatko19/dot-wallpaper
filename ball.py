@@ -1,16 +1,39 @@
-import random
-from typing import Optional
 from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
 from PySide6 import QtCore as qtc
-from typing import NamedTuple
 from math import sin, cos, radians, pi
 
+# class Position:
+#     def __init__(self, x: int, y: int):
+#         """Define the properties of the object in coordinates."""
+        
+#         self.position = qtc.QPointF(x, y)
 
-class Position:
     
-    def __init__(self, x, y, speed=1, angle=0):
+#     def update(self, dx, dy):
+#         self.position += qtc.QPointF(dx, dy)
+    
+#     def reflect(self, axis=None):
+#         """Reflects the angle. If axis=None, reflect both axis, if axis=0 reflect x, else reflect y"""
+#         match axis:
+#             case 0:
+#                 self.angle = -self.angle
+#             case 1:
+#                 self.angle = pi - self.angle
+#             case _:
+#                 self.angle = self.angle + pi
+
+class Ball:
+    def __init__(
+        self, 
+        x: int, y: int, 
+        speed: int = 0, angle: int | float= 0, 
+        color: qtg.QColor = qtg.QColor(255, 0, 0, 180), radius: int = 10
+        ):
+        
         self.position = qtc.QPointF(x, y)
+        self.color = color
+        self.radius = radius
         self.speed = speed
         self._angle = radians(angle) #in degrees
     
@@ -26,7 +49,6 @@ class Position:
     def update(self):
         dx = self.speed * cos(self.angle)
         dy = self.speed * sin(self.angle)
-        
         self.position += qtc.QPointF(dx, dy)
     
     def reflect(self, axis=None):
@@ -37,21 +59,21 @@ class Position:
             case 1:
                 self.angle = pi - self.angle
             case _:
-                ...
-
-
-
-class Ball(Position):
-    def __init__(
-        self, 
-        x: int, y: int, 
-        speed: int =1, angle: int | float= 0, 
-        color: qtg.QColor = qtg.QColor(255, 0, 0, 180), radious: int = 10
-        ):
-        super().__init__(x, y, speed, angle)
-        self.color = color
-        self.radious = radious
-
+                self.angle = self.angle + pi
+    
+    def draw(self, painter: qtg.QPainter):
+        painter.setBrush(qtg.QBrush(self.color))
+        painter.drawEllipse(self.position, self.radius, self.radius)
+                
+class Atractor(Ball):
+    def __init__(self, radius = 5, color: qtg.QColor = qtg.QColor(255, 255, 255, 180)):
+        super().__init__(x=0, y=0, radius=radius, color=color)
+    
+    def update(self, position: qtc.QPointF):
+        'Should be stationary or be on top of the cursor'
+        ...
+        self.position = position
+    
     
 
 if __name__ == '__main__':
