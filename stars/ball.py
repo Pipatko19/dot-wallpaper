@@ -10,7 +10,8 @@ class Ball:
         speed: int = 0, angle: int | float= 0, 
         color: qtg.QColor = qtg.QColor(255, 0, 0, 180), radius: int = 10
         ):
-        self.position = qtc.QPointF(x, y)
+        
+        self.position: qtg.QVector2D = qtg.QVector2D(x, y)
         self.color = color
         self.radius = radius
         self.speed = speed
@@ -24,12 +25,21 @@ class Ball:
     def angle(self, val):
         #self._angle = val % (2 * pi)
         self._angle = val
+        
+    @property
+    def point(self):
+        return self.position.toPointF()
+    @point.setter
+    def point(self, other):
+        raise ValueError('Can not set the position')
+    
+    def __hash__(self):
+        return hash((self.point.x(), self.point.y()))
     
     def update(self):
         dx = self.speed * cos(self.angle)
         dy = self.speed * sin(self.angle)
-        self.position += qtc.QPointF(dx, dy)
-    
+        self.position += qtg.QVector2D(dx, dy)
     
     def reflect(self, axis=None):
         """Reflects the angle. If axis=None, reflect both axis, if axis=0 reflect x, else reflect y"""
@@ -43,7 +53,7 @@ class Ball:
     
     def draw(self, painter: qtg.QPainter):
         painter.setBrush(qtg.QBrush(self.color))
-        painter.drawEllipse(self.position, self.radius, self.radius)
+        painter.drawEllipse(self.point, self.radius, self.radius)
                 
     
     

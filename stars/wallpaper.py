@@ -4,12 +4,14 @@ import random
 from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
 from PySide6 import QtCore as qtc
-from ball import Ball, Atractor
+from ball import Ball
+from typing import Optional
 
 BALL_RADIUS = 15
 OFFSET = BALL_RADIUS + 10
-BALL_COUNT = 500
-BALL_SPEED = 5
+BALL_COUNT = 100
+BALL_SPEED = 3
+LINE_COLOR = qtg.QColor(255, 255, 255, 90)
 
 class Wallpaper(qtw.QWidget):
     key_pressed = qtc.Signal(str)
@@ -33,9 +35,8 @@ class Wallpaper(qtw.QWidget):
             for _ in range(BALL_COUNT)
             ]
         
-        self.cursor_ball = Atractor()
         self.objects.extend(self.balls)
-        self.objects.append(self.cursor_ball)
+        self.lines = []
         
         self.timer = qtc.QTimer()
         self.timer.timeout.connect(self.update_all)
@@ -54,24 +55,40 @@ class Wallpaper(qtw.QWidget):
             if y - ball.radius < 0 or y + ball.radius > self.height():
                 ball.reflect(0)
     
-    def _update_cursor(self):
-        new_pos = self.mapFromGlobal(qtg.QCursor.pos())
-        self.cursor_ball.update(new_pos)
+    def find_lines(self):
+        self.lines = []
+        self.seen_balls = set()
+        for ball in self.balls:
+            min_distance = float('inf')
+            closest_ball = None
+            for other_ball in self.balls:
+                if ball is other_ball or ball in self.seen_balls:
+                    continue
+                dist = ball.position.distanceToPoint(other_ball.position)
+                if min_distance > dist:
+                    min_distance = dist
+                    closest_ball = other_ball
+            if closest_ball is not None: 
+                self.lines.append(qtc.QLineF(ball.point, closest_ball.point))
+                self.seen_balls.add(closest_ball)
     
     def update_all(self):
         self._update_ball_positions()
-        self._update_cursor()
         self.update()
-    
+        self.find_lines()
     
     def paintEvent(self, event):
+        super().paintEvent(event)
+        
         painter = qtg.QPainter(self)
         painter.setRenderHint(qtg.QPainter.Antialiasing)
         
         for obj in self.objects:
             obj.draw(painter)
+            
+        painter.drawLines(self.lines)
         
-        return super().paintEvent(event)
+        painter.end()
 
     def keyPressEvent(self, event):
         key = event.text()
