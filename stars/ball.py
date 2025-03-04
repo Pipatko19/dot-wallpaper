@@ -2,18 +2,25 @@ from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
 from PySide6 import QtCore as qtc
 from math import sin, cos, radians, pi
+from random import randint
+
+
 
 class Ball:
     def __init__(
         self, 
         x: int, y: int, 
         speed: int = 0, angle: int | float= 0, 
-        color: qtg.QColor = qtg.QColor(255, 0, 0, 180), radius: int = 10
+        color: qtg.QColor = qtg.QColor(255, 0, 0, 180), radius: int = 15
         ):
         
         self.position: qtg.QVector2D = qtg.QVector2D(x, y)
         self.color = color
+        
         self.radius = radius
+        self._MAX_SIZE = radius + radius * 0.3
+        self._MIN_SIZE = radius - radius * 0.9
+        self.radius_change_size = randint(1, 4) / 12
         self.speed = speed
         self._angle = radians(angle) #in degrees
     
@@ -51,9 +58,27 @@ class Ball:
             case _:
                 self.angle = self.angle + pi
     
+    def _inflate(self):
+        self.radius += self.radius_change_size
+        if self.radius > self._MAX_SIZE:
+            self.radius = 20
+            self.radius_change_size = -self.radius_change_size
+        elif self.radius < self._MIN_SIZE:
+            self.radius = 10
+            self.radius_change_size = -self.radius_change_size
+    
     def draw(self, painter: qtg.QPainter):
-        painter.setBrush(qtg.QBrush(self.color))
+        gradient = qtg.QRadialGradient(self.point, self.radius)
+        gradient.setColorAt(0, self.color)
+        gradient.setColorAt(0.5, self.color.lighter(120))
+        gradient.setColorAt(1, qtg.QColor(0, 0, 0, 0))
+        
+        self._inflate()
+
+        painter.setBrush(qtg.QBrush(gradient))
+        painter.setPen(qtg.Qt.NoPen)
         painter.drawEllipse(self.point, self.radius, self.radius)
+        
                 
     
     

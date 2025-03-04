@@ -5,13 +5,11 @@ from PySide6 import QtWidgets as qtw
 from PySide6 import QtGui as qtg
 from PySide6 import QtCore as qtc
 from ball import Ball
-from typing import Optional
 
 BALL_RADIUS = 15
 OFFSET = BALL_RADIUS + 10
 BALL_COUNT = 100
-BALL_SPEED = 3
-LINE_COLOR = qtg.QColor(255, 255, 255, 90)
+BALL_SPEED = 8
 
 class Wallpaper(qtw.QWidget):
     key_pressed = qtc.Signal(str)
@@ -85,6 +83,8 @@ class Wallpaper(qtw.QWidget):
         
         for obj in self.objects:
             obj.draw(painter)
+            painter.setBrush(qtg.Qt.NoBrush)
+            painter.setPen(qtg.Qt.white)
             
         painter.drawLines(self.lines)
         
