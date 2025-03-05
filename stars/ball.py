@@ -18,20 +18,11 @@ class Ball:
         self.color = color
         
         self.radius = radius
-        self._MAX_SIZE = radius + radius * 0.3
-        self._MIN_SIZE = radius - radius * 0.9
-        self.radius_change_size = randint(1, 4) / 12
+
+        self.inflate = self._create_inflate(radius)
+
         self.speed = speed
-        self._angle = radians(angle) #in degrees
-    
-    @property
-    def angle(self):
-        return self._angle
-    
-    @angle.setter
-    def angle(self, val):
-        #self._angle = val % (2 * pi)
-        self._angle = val
+        self.angle = radians(angle)
         
     @property
     def point(self):
@@ -58,14 +49,21 @@ class Ball:
             case _:
                 self.angle = self.angle + pi
     
-    def _inflate(self):
-        self.radius += self.radius_change_size
-        if self.radius > self._MAX_SIZE:
-            self.radius = 20
-            self.radius_change_size = -self.radius_change_size
-        elif self.radius < self._MIN_SIZE:
-            self.radius = 10
-            self.radius_change_size = -self.radius_change_size
+    def _create_inflate(self, radius):
+        _MAX_SIZE = radius + radius * 0.3
+        _MIN_SIZE = radius - radius * 0.1
+        radius_change_size = randint(1, 4) / 12
+        def inflate():
+            nonlocal radius_change_size, self
+            self.radius += radius_change_size
+            if self.radius > _MAX_SIZE:
+                self.radius = _MAX_SIZE
+                radius_change_size *= -1
+            elif self.radius < _MIN_SIZE:
+                self.radius = _MIN_SIZE
+                radius_change_size *= -1
+                
+        return inflate
     
     def draw(self, painter: qtg.QPainter):
         gradient = qtg.QRadialGradient(self.point, self.radius)
@@ -73,7 +71,7 @@ class Ball:
         gradient.setColorAt(0.5, self.color.lighter(120))
         gradient.setColorAt(1, qtg.QColor(0, 0, 0, 0))
         
-        self._inflate()
+        self.inflate()
 
         painter.setBrush(qtg.QBrush(gradient))
         painter.setPen(qtg.Qt.NoPen)
